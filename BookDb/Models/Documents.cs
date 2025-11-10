@@ -17,7 +17,7 @@ namespace BookDb.Models
 
         // Keep Author name for display but also reference Author entity via AuthorId
         [MaxLength(200)]
-        public string Author { get; set; } = string.Empty;
+        public string? Author { get; set; } = string.Empty;
 
         // FK to Author entity
         public int? AuthorId { get; set; }

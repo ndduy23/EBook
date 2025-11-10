@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookDb.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251110072809_BB")]
-    partial class BB
+    [Migration("20251110074607_b")]
+    partial class b
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,7 +97,6 @@ namespace BookDb.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Author")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -481,8 +480,7 @@ namespace BookDb.Migrations
                         .WithMany()
                         .HasForeignKey("Author")
                         .HasPrincipalKey("Name")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("BookDb.Models.Author", "AuthorEntity")
                         .WithMany()

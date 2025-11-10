@@ -18,6 +18,18 @@ namespace BookDb.Migrations
                 name: "IX_Bookmarks_DocumentPageId",
                 table: "Bookmarks");
 
+            // 1. Make Author column NULLABLE
+            migrationBuilder.AlterColumn<string>(
+                name: "Author",
+                table: "Documents",
+                type: "nvarchar(200)",
+                maxLength: 200,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(200)",
+                oldMaxLength: 200);
+
+            // 2. Add new columns to Documents
             migrationBuilder.AddColumn<int>(
                 name: "AuthorId",
                 table: "Documents",
@@ -31,6 +43,7 @@ namespace BookDb.Migrations
                 maxLength: 450,
                 nullable: true);
 
+            // 3. Update Bookmarks table
             migrationBuilder.AlterColumn<int>(
                 name: "DocumentPageId",
                 table: "Bookmarks",
@@ -58,6 +71,7 @@ namespace BookDb.Migrations
                 maxLength: 450,
                 nullable: true);
 
+            // 4. Create Authors table
             migrationBuilder.CreateTable(
                 name: "Authors",
                 columns: table => new
@@ -73,6 +87,25 @@ namespace BookDb.Migrations
                     table.UniqueConstraint("AK_Authors_Name", x => x.Name);
                 });
 
+            // 5. Migrate existing author data to Authors table
+            migrationBuilder.Sql(@"
+                INSERT INTO Authors (Name)
+                SELECT DISTINCT Author
+                FROM Documents
+                WHERE Author IS NOT NULL AND Author <> ''
+                AND NOT EXISTS (SELECT 1 FROM Authors WHERE Name = Documents.Author)
+            ");
+
+            // 6. Set AuthorId for existing documents
+            migrationBuilder.Sql(@"
+                UPDATE d
+                SET d.AuthorId = a.Id
+                FROM Documents d
+                INNER JOIN Authors a ON d.Author = a.Name
+                WHERE d.Author IS NOT NULL
+            ");
+
+            // 7. Create indexes
             migrationBuilder.CreateIndex(
                 name: "IX_Documents_Author",
                 table: "Documents",
@@ -95,6 +128,7 @@ namespace BookDb.Migrations
                 unique: true,
                 filter: "[DocumentPageId] IS NOT NULL");
 
+            // 8. Add foreign keys
             migrationBuilder.AddForeignKey(
                 name: "FK_Bookmarks_DocumentPages_DocumentPageId",
                 table: "Bookmarks",
@@ -110,6 +144,7 @@ namespace BookDb.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
+            // 9. Add FK from Documents.Author to Authors.Name (now all authors exist)
             migrationBuilder.AddForeignKey(
                 name: "FK_Documents_Authors_Author",
                 table: "Documents",
@@ -118,6 +153,7 @@ namespace BookDb.Migrations
                 principalColumn: "Name",
                 onDelete: ReferentialAction.SetNull);
 
+            // 10. Add FK from Documents.AuthorId to Authors.Id
             migrationBuilder.AddForeignKey(
                 name: "FK_Documents_Authors_AuthorId",
                 table: "Documents",
@@ -192,6 +228,18 @@ namespace BookDb.Migrations
                 defaultValue: 0,
                 oldClrType: typeof(int),
                 oldType: "int",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Author",
+                table: "Documents",
+                type: "nvarchar(200)",
+                maxLength: 200,
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "nvarchar(200)",
+                oldMaxLength: 200,
                 oldNullable: true);
 
             migrationBuilder.CreateIndex(

@@ -94,7 +94,6 @@ namespace BookDb.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Author")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -478,8 +477,7 @@ namespace BookDb.Migrations
                         .WithMany()
                         .HasForeignKey("Author")
                         .HasPrincipalKey("Name")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("BookDb.Models.Author", "AuthorEntity")
                         .WithMany()
