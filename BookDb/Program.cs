@@ -154,11 +154,12 @@ builder.Services.AddCors(options =>
 
 // Add Controllers and Views
 builder.Services.AddControllersWithViews()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = null; // Keep original casing
-        options.JsonSerializerOptions.WriteIndented = true;
-    });
+ .AddJsonOptions(options =>
+ {
+ // Use camelCase naming for JSON to match client-side JavaScript expectations
+ options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+ options.JsonSerializerOptions.WriteIndented = true;
+ });
 
 builder.Services.AddRazorPages();
 

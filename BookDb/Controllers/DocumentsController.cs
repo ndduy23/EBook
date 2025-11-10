@@ -1,11 +1,10 @@
-using BookDb.Models;
-using BookDb.Services.Implementations;
-using BookDb.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using BookDb.Hubs;
+using BookDb.Models;
+using BookDb.Services.Interfaces;
 using BookDb.Views.Documents;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 [Route("documents")]
 [Authorize] // Require authentication for all actions

@@ -2,15 +2,43 @@
 
 @foreach (var item in Model.Documents)
 {
-    <tr data-document-id="@item.Id">
-        <td>@item.Title</td>
-        <td>@item.Category</td>
+    <tr data-document-id="@item.Id" class="document-card">
+        <td><strong>@item.Title</strong></td>
+        <td><span class="badge bg-info">@item.Category</span></td>
         <td>@item.Author</td>
         <td>@Model.GetFormattedDate(item.CreatedAt)</td>
         <td>
-            <a asp-action="ViewDocument" asp-route-id="@item.Id" class="btn btn-sm btn-success">Xem</a>
-            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
-            <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="@item.Id">Xóa</button>
+            <!-- View button - available for everyone -->
+            <a asp-action="ViewDocument" asp-route-id="@item.Id"
+               class="btn btn-sm btn-success">
+                <i class="bi bi-eye"></i> Xem
+            </a>
+
+            <!-- Edit & Delete - only for authenticated users -->
+            <span class="auth-only">
+                <a asp-action="Edit" asp-route-id="@item.Id"
+                   class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i> Sửa
+                </a>
+                <button type="button" class="btn btn-sm btn-danger delete-btn"
+                        data-id="@item.Id" data-title="@item.Title">
+                    <i class="bi bi-trash"></i> Xóa
+                </button>
+            </span>
+
+            <!-- Disabled buttons for guests -->
+            <span class="guest-only" style="display:none;">
+                <div class="auth-required-overlay" style="display:inline-block;">
+                    <button class="btn btn-sm btn-secondary disabled-for-guest">
+                        <i class="bi bi-pencil"></i> Sửa
+                    </button>
+                </div>
+                <div class="auth-required-overlay" style="display:inline-block;">
+                    <button class="btn btn-sm btn-secondary disabled-for-guest">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </div>
+            </span>
         </td>
     </tr>
 }
@@ -18,6 +46,9 @@
 @if (!Model.HasDocuments())
 {
     <tr>
-        <td colspan="5" class="text-center text-muted py-4">Không có tài liệu nào</td>
+        <td colspan="5" class="text-center text-muted py-4">
+            <i class="bi bi-inbox" style="font-size: 32px;"></i>
+            <p class="mt-2">Không có tài liệu nào</p>
+        </td>
     </tr>
 }

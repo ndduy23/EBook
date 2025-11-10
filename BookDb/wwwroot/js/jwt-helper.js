@@ -27,11 +27,30 @@ window.JwtHelper = (function () {
         localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
         // Also save to cookies for server-side access
-        const tokenExpiry = 3600; // 1 hour
-        const refreshExpiry = 604800; // 7 days
+        const tokenExpiry = 3600; // 1 hour (seconds)
+        const refreshExpiry = 604800; // 7 days (seconds)
 
-        document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${tokenExpiry}; SameSite=Lax; Secure`;
-        document.cookie = `${REFRESH_TOKEN_KEY}=${refreshToken}; path=/; max-age=${refreshExpiry}; SameSite=Lax; Secure`;
+        const isSecure = window.location.protocol === 'https:';
+
+        // Use encodeURIComponent to avoid characters breaking cookie format
+        const encodedToken = encodeURIComponent(token);
+        const encodedRefresh = encodeURIComponent(refreshToken);
+
+        const tokenExpires = new Date(Date.now() + tokenExpiry * 1000).toUTCString();
+        const refreshExpires = new Date(Date.now() + refreshExpiry * 1000).toUTCString();
+
+        // Build cookie strings. Only add Secure attribute when on HTTPS (so cookies persist on HTTP dev servers)
+        let tokenCookie = `${TOKEN_KEY}=${encodedToken}; path=/; max-age=${tokenExpiry}; expires=${tokenExpires}; SameSite=Lax`;
+        let refreshCookie = `${REFRESH_TOKEN_KEY}=${encodedRefresh}; path=/; max-age=${refreshExpiry}; expires=${refreshExpires}; SameSite=Lax`;
+
+        if (isSecure) {
+            tokenCookie += '; Secure';
+            refreshCookie += '; Secure';
+        }
+
+        // Set cookies
+        document.cookie = tokenCookie;
+        document.cookie = refreshCookie;
 
         console.log('Tokens saved successfully');
     }
@@ -42,9 +61,21 @@ window.JwtHelper = (function () {
         localStorage.removeItem(REFRESH_TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
 
-        // Clear cookies
-        document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`;
-        document.cookie = `${REFRESH_TOKEN_KEY}=; path=/; max-age=0`;
+        // Clear cookies (use same Secure logic as save)
+        const isSecure = window.location.protocol === 'https:';
+        // Standard past date for cookie expiry
+        const expiresPast = 'Thu, 01 Jan 1970 00:00:00 GMT';
+
+        let tokenClear = `${TOKEN_KEY}=; path=/; max-age=0; expires=${expiresPast}; SameSite=Lax`;
+        let refreshClear = `${REFRESH_TOKEN_KEY}=; path=/; max-age=0; expires=${expiresPast}; SameSite=Lax`;
+
+        if (isSecure) {
+            tokenClear += '; Secure';
+            refreshClear += '; Secure';
+        }
+
+        document.cookie = tokenClear;
+        document.cookie = refreshClear;
 
         console.log('Tokens cleared');
     }

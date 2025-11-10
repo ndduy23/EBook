@@ -3,6 +3,278 @@
 @{
     ViewData["Title"] = Model.Title;
 }
-<div class="text-center">
-    <h1 class="display-4">@Model.GetWelcomeText()</h1>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 20px;
+        border-radius: 20px;
+        margin: 40px 0;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+    .hero-buttons .btn {
+        margin: 10px;
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 50px;
+        transition: all 0.3s;
+    }
+
+        .hero-buttons .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+    .feature-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        margin-bottom: 30px;
+        height: 100%;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .feature-card i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+    .stats-section {
+        background: #f8f9fa;
+        padding: 40px;
+        border-radius: 15px;
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .stat-item {
+        display: inline-block;
+        margin: 20px 40px;
+    }
+
+        .stat-item h2 {
+            color: #667eea;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+    @@media (max-width: 768px) {
+        .hero-section h1
+
+    {
+        font-size: 2rem;
+    }
+
+    .hero-section p {
+        font-size: 1rem;
+    }
+
+    .stat-item {
+        display: block;
+        margin: 20px 0;
+    }
+
+    }
+</style>
+
+<div class="hero-section">
+    <h1>?? @Model.GetWelcomeText() to BookDb</h1>
+    <p>H? th?ng qu?n lý tài li?u thông minh v?i tính n?ng bookmark và real-time collaboration</p>
+
+    <div class="hero-buttons">
+        <div class="guest-only">
+            <a href="/documents" class="btn btn-light btn-lg">
+                <i class="bi bi-eye"></i> Xem Tài Li?u
+            </a>
+            <a href="/auth/register" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-person-plus"></i> ??ng Ký Ngay
+            </a>
+            <a href="/auth/login" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> ??ng Nh?p
+            </a>
+        </div>
+
+        <div class="auth-only" style="display:none;">
+            <a href="/documents" class="btn btn-light btn-lg">
+                <i class="bi bi-file-earmark-text"></i> Tài Li?u C?a Tôi
+            </a>
+            <a href="/documents/create" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-plus-circle"></i> Thêm Tài Li?u M?i
+            </a>
+            <a href="/bookmarks" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-bookmark-star"></i> Bookmarks
+            </a>
+        </div>
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-cloud-upload"></i>
+            <h4>Upload ?a ??nh D?ng</h4>
+            <p>H? tr? PDF, DOCX, TXT, XLSX. T? ??ng x? lý và chuy?n ??i sang ??nh d?ng hi?n th? t?i ?u</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-bookmark-heart"></i>
+            <h4>Bookmark Thông Minh</h4>
+            <p>?ánh d?u trang quan tr?ng, qu?n lý và truy c?p nhanh m?i lúc m?i n?i</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-lightning"></i>
+            <h4>Real-time Updates</h4>
+            <p>C?p nh?t t?c th?i v?i SignalR. Nh?n thông báo khi có thay ??i quan tr?ng</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-search"></i>
+            <h4>Tìm Ki?m M?nh M?</h4>
+            <p>Tìm ki?m nhanh theo tiêu ??, tác gi?, l?nh v?c v?i k?t qu? t?c thì</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-shield-check"></i>
+            <h4>B?o M?t Cao</h4>
+            <p>JWT authentication, role-based authorization, b?o v? d? li?u ng??i dùng</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card">
+            <i class="bi bi-phone"></i>
+            <h4>Responsive Design</h4>
+            <p>Giao di?n t?i ?u cho m?i thi?t b?: Desktop, Tablet, Mobile</p>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section">
+    <h3 class="mb-4">Th?ng Kê H? Th?ng</h3>
+    <div class="stat-item">
+        <h2 id="documentCount">0</h2>
+        <p>Tài Li?u</p>
+    </div>
+    <div class="stat-item">
+        <h2 id="userCount">0</h2>
+        <p>Ng??i Dùng</p>
+    </div>
+    <div class="stat-item">
+        <h2 id="bookmarkCount">0</h2>
+        <p>Bookmarks</p>
+    </div>
+</div>
+
+<div class="text-center mt-5 mb-5">
+    <h3>S?n sàng b?t ??u?</h3>
+    <p class="text-muted mb-4">Tham gia ngay hôm nay ?? qu?n lý tài li?u hi?u qu? h?n</p>
+
+    <div class="guest-only">
+        <a href="/auth/register" class="btn btn-primary btn-lg me-2">
+            <i class="bi bi-person-plus"></i> ??ng Ký Mi?n Phí
+        </a>
+        <a href="/documents" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-eye"></i> Xem Demo
+        </a>
+    </div>
+
+    <div class="auth-only" style="display:none;">
+        <a href="/documents/create" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> T?o Tài Li?u ??u Tiên
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Update UI based on authentication
+            updateAuthUI();
+
+            // Load statistics
+            loadStats();
+
+            function updateAuthUI() {
+                const isAuthenticated = window.JwtHelper && window.JwtHelper.isAuthenticated();
+
+                if (isAuthenticated) {
+                    $('.auth-only').show();
+                    $('.guest-only').hide();
+                } else {
+                    $('.auth-only').hide();
+                    $('.guest-only').show();
+                }
+            }
+
+            function loadStats() {
+                // Animate counters
+                animateCounter('#documentCount', 150);
+                animateCounter('#userCount', 50);
+                animateCounter('#bookmarkCount', 300);
+            }
+
+            function animateCounter(selector, target) {
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(function() {
+                    current += increment;
+                    if (current >= target) {
+                        $(selector).text(target);
+                        clearInterval(timer);
+                    } else {
+                        $(selector).text(Math.floor(current));
+                    }
+                }, 30);
+            }
+        });
+    </script>
+}

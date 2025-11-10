@@ -122,32 +122,44 @@
 
             <!-- Bookmark Actions -->
             <div class="bookmark-actions mt-3">
-                @if (Model.CurrentPageHasBookmark())
-                {
-                    var bookmark = currentPageDoc.Bookmark;
-                    <div class="bookmark-info">
-                        <span>🔖 <strong>Đã có Bookmark:</strong> @(bookmark?.Title ?? "Không có tiêu đề")</span>
-                    </div>
+                <!-- Only show for authenticated users -->
+                <div class="auth-only">
+                    @if (Model.CurrentPageHasBookmark())
+                    {
+                        var bookmark = currentPageDoc.Bookmark;
+                        <div class="bookmark-info">
+                            <span>🔖 <strong>Đã có Bookmark:</strong> @(bookmark?.Title ?? "Không có tiêu đề")</span>
+                        </div>
 
-                    <form id="deleteBookmarkForm" asp-controller="Bookmarks" asp-action="Delete" asp-route-id="@bookmark?.Id" method="post" style="display:inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" id="deleteBookmarkBtn">
-                            <span class="spinner-border spinner-border-sm d-none" id="deleteBookmarkSpinner"></span>
-                            <i class="bi bi-trash"></i> Xóa Bookmark
-                        </button>
-                    </form>
-                }
-                else
-                {
-                    <form id="bookmarkForm" asp-controller="Bookmarks" asp-action="Create" method="post" style="display:inline">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="documentPageId" value="@currentPageDoc.Id" />
-                        <button type="submit" class="btn btn-primary" id="addBookmarkBtn">
-                            <span class="spinner-border spinner-border-sm d-none" id="bookmarkSpinner"></span>
-                            <i class="bi bi-bookmark-plus"></i> Thêm Bookmark
-                        </button>
-                    </form>
-                }
+                        <form id="deleteBookmarkForm" asp-controller="Bookmarks" asp-action="Delete" asp-route-id="@bookmark?.Id" method="post" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger" id="deleteBookmarkBtn">
+                                <span class="spinner-border spinner-border-sm d-none" id="deleteBookmarkSpinner"></span>
+                                <i class="bi bi-trash"></i> Xóa Bookmark
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form id="bookmarkForm" asp-controller="Bookmarks" asp-action="Create" method="post" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="documentPageId" value="@currentPageDoc.Id" />
+                            <button type="submit" class="btn btn-primary" id="addBookmarkBtn">
+                                <span class="spinner-border spinner-border-sm d-none" id="bookmarkSpinner"></span>
+                                <i class="bi bi-bookmark-plus"></i> Thêm Bookmark
+                            </button>
+                        </form>
+                    }
+                </div>
+
+                <!-- Show message for guests -->
+                <div class="guest-only" style="display:none;">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-lock"></i>
+                        <strong>Đăng nhập để sử dụng tính năng Bookmark</strong>
+                        <a href="/auth/login" class="btn btn-sm btn-primary ms-2">Đăng nhập</a>
+                    </div>
+                </div>
             </div>
         }
         else
