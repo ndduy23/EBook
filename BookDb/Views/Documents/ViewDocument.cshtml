@@ -5,374 +5,359 @@
 }
 
 <style>
-    #addBookmarkBtn, #deleteBookmarkBtn {
-        transition: all 0.3s ease;
-        min-width: 150px;
+    #documentViewer {
+        width: 100%;
+        height: 800px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
     }
 
-        #addBookmarkBtn:disabled, #deleteBookmarkBtn:disabled {
-            cursor: not-allowed;
-        }
-
-    .bookmark-success {
-        animation: bookmarkPulse 0.5s ease-out;
-    }
-
-    @@keyframes bookmarkPulse {
-        0%, 100%
-
-    {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    }
-
-    .bookmark-actions {
-        display: inline-flex;
+    .document-toolbar {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
         gap: 10px;
-        align-items: center;
     }
 
-    .bookmark-info {
-        display: inline-flex;
+    .page-controls {
+        display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 15px;
-        background: #fff3cd;
-        border-radius: 6px;
-        border: 1px solid #ffc107;
+        gap: 10px;
+    }
+
+    .search-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .bookmark-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-info {
+        font-weight: 500;
+        padding: 5px 15px;
+        background: white;
+        border-radius: 4px;
+    }
+
+    #searchBox {
+        min-width: 250px;
+    }
+
+    .highlight {
+        background-color: yellow;
+        padding: 2px 0;
+    }
+
+    .current-highlight {
+        background-color: orange;
     }
 </style>
 
-<h2>@Model.GetDocumentTitle()</h2>
-<p>
-    <b>Tác giả:</b> @Model.GetDocumentAuthor() <br />
-    <b>Lĩnh vực:</b> @Model.GetDocumentCategory() <br />
-    <b>Ngày tạo:</b> @Model.GetFormattedDate() <br />
-    <b>Mô tả:</b> @Model.GetDocumentDescription()
-</p>
+<div class="container-fluid">
+    <h2>@Model.GetDocumentTitle()</h2>
 
-<!-- Nút chuyển đổi giữa bản gốc và bản phân trang -->
-<div class="mb-3 d-flex align-items-center">
-    @if (Model.IsPagedMode())
-    {
-        <a asp-action="ViewDocument" asp-route-id="@Model.GetDocumentId()" asp-route-mode="original" class="btn btn-info">
-            Xem bản gốc
-        </a>
-    }
-    else
-    {
-        <a asp-action="ViewDocument" asp-route-id="@Model.GetDocumentId()" asp-route-mode="paged" class="btn btn-info">
-            Xem bản phân trang
-        </a>
-    }
-
-    @* Page controls placed next to the mode switch *@
-    @if (Model.IsPagedMode() && Model.HasPages() && Model.TotalPages > 0)
-    {
-        <div class="ms-3">
-            <div class="btn-group" role="group" aria-label="Trang">
-                @if (Model.HasPreviousPage())
-                {
-                    <a asp-action="ViewDocument" asp-route-id="@Model.GetDocumentId()" asp-route-mode="paged" asp-route-page="@Model.GetPreviousPageNumber()" class="btn btn-secondary">←</a>
-                }
-
-                <a class="btn btn-light disabled">@Model.GetPageInfo()</a>
-
-                @if (Model.HasNextPage())
-                {
-                    <a asp-action="ViewDocument" asp-route-id="@Model.GetDocumentId()" asp-route-mode="paged" asp-route-page="@Model.GetNextPageNumber()" class="btn btn-secondary">→</a>
-                    <a asp-action="ViewDocument" asp-route-id="@Model.GetDocumentId()" asp-route-mode="paged" asp-route-page="@Model.TotalPages" class="btn btn-secondary">Trang cuối »</a>
-                }
-            </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <p class="mb-1"><strong>Tác giả:</strong> @Model.GetDocumentAuthor()</p>
+            <p class="mb-1"><strong>Lĩnh vực:</strong> @Model.GetDocumentCategory()</p>
+            <p class="mb-1"><strong>Ngày tạo:</strong> @Model.GetFormattedDate()</p>
+            @if (!string.IsNullOrEmpty(Model.GetDocumentDescription()))
+            {
+                <p class="mb-1"><strong>Mô tả:</strong> @Model.GetDocumentDescription()</p>
+            }
         </div>
-    }
+    </div>
+
+    <div class="document-toolbar">
+        <!-- Page Navigation -->
+        <div class="page-controls">
+            <button type="button" class="btn btn-secondary btn-sm" id="prevPage" disabled>
+                <i class="bi bi-chevron-left"></i> Trước
+            </button>
+            <span class="page-info">
+                Trang <span id="currentPage">1</span> / <span id="totalPages">1</span>
+            </span>
+            <button type="button" class="btn btn-secondary btn-sm" id="nextPage">
+                Sau <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-controls">
+            <input type="text"
+                   class="form-control form-control-sm"
+                   id="searchBox"
+                   placeholder="Tìm kiếm trong tài liệu...">
+            <button type="button" class="btn btn-info btn-sm" id="searchBtn">
+                <i class="bi bi-search"></i> Tìm
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="clearSearch" style="display:none;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <!-- Bookmark -->
+        <div class="bookmark-controls auth-only">
+            <button type="button" class="btn btn-primary btn-sm" id="addBookmarkBtn">
+                <i class="bi bi-bookmark-plus"></i> Thêm Bookmark
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" id="deleteBookmarkBtn" style="display:none;">
+                <i class="bi bi-trash"></i> Xóa Bookmark
+            </button>
+        </div>
+
+        <!-- Guest message -->
+        <div class="guest-only" style="display:none;">
+            <small class="text-muted">
+                <i class="bi bi-lock"></i>
+                <a href="/auth/login">Đăng nhập</a> để sử dụng bookmark
+            </small>
+        </div>
+    </div>
+
+    <!-- Document Viewer -->
+    <div id="documentViewer">
+        <iframe id="docFrame"
+                src="@Url.Content(Model.GetFilePath())"
+                style="width:100%; height:100%; border:none;">
+        </iframe>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
 </div>
 
-<!-- Hiển thị PDF và HTML (Excel) -->
-@if (Model.IsPagedMode())
-{
-    if (Model.HasPages())
-    {
-        var currentPageDoc = Model.GetCurrentPageDocument();
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const documentId = @Model.GetDocumentId();
+            const documentTitle = '@Model.GetSafeTitle()';
+            let currentPage = 1;
+            let totalPages = 1;
+            let currentBookmarkId = null;
 
-        if (currentPageDoc != null)
-        {
-            var iframeSrc = Url.Content(Model.GetIFrameSource());
+            // Initialize viewer based on file type
+            const fileType = '@Model.GetFileExtension()';
 
-            // If the generated page is HTML (from Excel), show it directly. Otherwise (PDF) show inside an iframe as well.
-            if (Model.IsHtmlContent())
-            {
-                <iframe id="docFrame" src="@iframeSrc" width="80%" height="1000px" style="border:1px solid #ccc"></iframe>
-            }
-            else
-            {
-                <iframe id="docFrame" src="@iframeSrc" width="60%" height="1200px" style="border:1px solid #ccc"></iframe>
-            }
-
-            <!-- Hiển thị thông tin trang hiện tại / tổng trang -->
-            @if (Model.TotalPages > 0)
-            {
-                <div class="mt-2">@Model.GetPageInfo()</div>
-            }
-
-            <!-- Bookmark Actions -->
-            <div class="bookmark-actions mt-3">
-                <!-- Only show for authenticated users -->
-                <div class="auth-only">
-                    @if (Model.CurrentPageHasBookmark())
-                    {
-                        var bookmark = currentPageDoc.Bookmark;
-                        <div class="bookmark-info">
-                            <span>🔖 <strong>Đã có Bookmark:</strong> @(bookmark?.Title ?? "Không có tiêu đề")</span>
-                        </div>
-
-                        <form id="deleteBookmarkForm" asp-controller="Bookmarks" asp-action="Delete" asp-route-id="@bookmark?.Id" method="post" style="display:inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-danger" id="deleteBookmarkBtn">
-                                <span class="spinner-border spinner-border-sm d-none" id="deleteBookmarkSpinner"></span>
-                                <i class="bi bi-trash"></i> Xóa Bookmark
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form id="bookmarkForm" asp-controller="Bookmarks" asp-action="Create" method="post" style="display:inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="documentPageId" value="@currentPageDoc.Id" />
-                            <button type="submit" class="btn btn-primary" id="addBookmarkBtn">
-                                <span class="spinner-border spinner-border-sm d-none" id="bookmarkSpinner"></span>
-                                <i class="bi bi-bookmark-plus"></i> Thêm Bookmark
-                            </button>
-                        </form>
-                    }
-                </div>
-
-                <!-- Show message for guests -->
-                <div class="guest-only" style="display:none;">
-                    <div class="alert alert-warning">
-                        <i class="bi bi-lock"></i>
-                        <strong>Đăng nhập để sử dụng tính năng Bookmark</strong>
-                        <a href="/auth/login" class="btn btn-sm btn-primary ms-2">Đăng nhập</a>
-                    </div>
-                </div>
-            </div>
-        }
-        else
-        {
-            <p class="text-danger">Trang không tồn tại.</p>
-        }
-    }
-    else
-    {
-        <p class="text-danger">Tài liệu chưa được phân trang.</p>
-    }
-}
-else
-{
-    if (Model.HasFile())
-    {
-        <iframe id="docFrame" src="@Url.Content(Model.GetFilePath())" width="60%" height="1200px" style="border:1px solid #ccc"></iframe>
-    }
-    else
-    {
-        <p class="text-danger">Không tìm thấy file gốc.</p>
-    }
-}
-
-<script src="/lib/microsoft/signalr/dist/browser/signalr.js"></script>
-<script src="/js/document-notify.js"></script>
-<script>
-    (function () {
-        var docId = @Model.GetDocumentId();
-        var currentPageId = @Model.GetCurrentPageId();
-        var currentPageNumber = @Model.Page;
-        var mode = '@Model.Mode';
-
-        function onPageChanged(payload, action) {
-            try {
-                console.log('Page change detected:', action, payload);
-
-                if (action === 'updated') {
-                    // If the changed page is the same as currently displayed, reload the iframe
-                    if (payload && payload.PageId && payload.PageId === currentPageId) {
-                        var frame = document.getElementById('docFrame');
-                        if (frame) {
-                            // Add timestamp to force reload
-                            var src = frame.src.split('?')[0];
-                            frame.src = src + '?t=' + new Date().getTime();
-                            console.info('Page updated externally, reloaded iframe.');
-                        }
-                    } else if (payload && payload.PageNumber && payload.PageNumber === currentPageNumber) {
-                        // Reload the entire page to reflect changes
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    }
-                } else if (action === 'added') {
-                    // A new page was added, optionally reload to show updated page count
-                    console.info('New page added to document');
-                    // Could show a notification to refresh
-                    if (confirm('Có trang mới được thêm vào. Tải lại trang để xem?')) {
-                        location.reload();
-                    }
-                } else if (action === 'deleted') {
-                    // A page was deleted
-                    if (payload && payload.PageId && payload.PageId === currentPageId) {
-                        // Current page was deleted, redirect to first page or document list
-                        alert('Trang hiện tại đã bị xóa. Chuyển về trang đầu.');
-                        window.location.href = '/documents/view/@Model.GetDocumentId()?mode=paged&page=1';
-                    } else if (payload && payload.PageNumber && payload.PageNumber === currentPageNumber) {
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    }
-                }
-            } catch (e) {
-                console.error('Error handling page change:', e);
-            }
-        }
-
-        // Start SignalR notification system
-        startDocumentNotify(docId, onPageChanged);
-
-        // Leave group when navigating away
-        window.addEventListener('beforeunload', function () {
-            stopDocumentNotify(docId);
-        });
-    })();
-</script>
-
-<script>
-    // Handle bookmark form submission with AJAX
-    $(document).ready(function() {
-        // Add bookmark
-        $('#bookmarkForm').on('submit', function(e) {
-            e.preventDefault();
-
-            const form = $(this);
-            const submitBtn = $('#addBookmarkBtn');
-            const spinner = $('#bookmarkSpinner');
-
-            // Disable button and show spinner
-            submitBtn.prop('disabled', true);
-            spinner.removeClass('d-none');
-
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: form.serialize(),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Show success notification
-                        window.NotificationHub.showLocal('✅ ' + response.message, 'success');
-
-                        // Reload page to show delete button
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        handleBookmarkError(response.message);
-                        submitBtn.prop('disabled', false);
-                        spinner.addClass('d-none');
-                    }
-                },
-                error: function(xhr) {
-                    let errorMessage = 'Có lỗi xảy ra khi lưu bookmark';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                    handleBookmarkError(errorMessage);
-                    submitBtn.prop('disabled', false);
-                    spinner.addClass('d-none');
-                }
-            });
-        });
-
-        // Delete bookmark
-        $('#deleteBookmarkForm').on('submit', function(e) {
-            e.preventDefault();
-
-            if (!confirm('Bạn có chắc muốn xóa bookmark này?')) {
-                return;
-            }
-
-            const form = $(this);
-            const submitBtn = $('#deleteBookmarkBtn');
-            const spinner = $('#deleteBookmarkSpinner');
-
-            // Disable button and show spinner
-            submitBtn.prop('disabled', true);
-            spinner.removeClass('d-none');
-
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: form.serialize(),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Show success notification
-                        window.NotificationHub.showLocal('✅ Đã xóa bookmark thành công', 'success');
-
-                        // Reload page to show add button
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        window.NotificationHub.showLocal('❌ ' + (response.message || 'Không thể xóa bookmark'), 'error');
-                        submitBtn.prop('disabled', false);
-                        spinner.addClass('d-none');
-                    }
-                },
-                error: function(xhr) {
-                    let errorMessage = 'Có lỗi xảy ra khi xóa bookmark';
-                    if (xhr.status === 404) {
-                        errorMessage = 'Không tìm thấy bookmark';
-                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                    window.NotificationHub.showLocal('❌ ' + errorMessage, 'error');
-                    submitBtn.prop('disabled', false);
-                    spinner.addClass('d-none');
-                }
-            });
-        });
-
-        function handleBookmarkError(message) {
-            if (message && (message.includes('tồn tại') || message.includes('đã có'))) {
-                window.NotificationHub.showLocal('⚠️ ' + message, 'warning');
+            if (fileType === '.pdf') {
+                initPdfViewer();
             } else {
-                window.NotificationHub.showLocal('❌ ' + message, 'error');
+                // For non-PDF, hide page controls
+                $('.page-controls').hide();
             }
-        }
 
-        // Show TempData messages if exists
-        @if (TempData["SuccessMessage"] != null)
-        {
-                <text>
-                window.NotificationHub.showLocal('✅ @TempData["SuccessMessage"]', 'success');
-                </text>
-        }
+            // Page navigation
+            $('#prevPage').on('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePage();
+                }
+            });
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-                <text>
-                window.NotificationHub.showLocal('❌ @TempData["ErrorMessage"]', 'error');
-                </text>
-        }
-    });
-</script>
+            $('#nextPage').on('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePage();
+                }
+            });
 
-<p class="mt-3">
-    <a asp-action="Index" class="btn btn-secondary">← Quay lại danh sách</a>
-</p>
+            function updatePage() {
+                $('#currentPage').text(currentPage);
+                updatePageControls();
+                checkBookmark();
+            }
+
+            function updatePageControls() {
+                $('#prevPage').prop('disabled', currentPage <= 1);
+                $('#nextPage').prop('disabled', currentPage >= totalPages);
+            }
+
+            // Search functionality
+            $('#searchBtn, #searchBox').on('click keypress', function(e) {
+                if (e.type === 'click' || e.which === 13) {
+                    performSearch();
+                }
+            });
+
+            $('#clearSearch').on('click', function() {
+                $('#searchBox').val('');
+                clearSearch();
+                $(this).hide();
+            });
+
+            function performSearch() {
+                const query = $('#searchBox').val().trim();
+                if (!query) return;
+
+                // For PDF, use PDF.js search API
+                // For Office docs, use browser find
+                if (fileType === '.pdf') {
+                    searchInPdf(query);
+                } else {
+                    searchInIframe(query);
+                }
+
+                $('#clearSearch').show();
+            }
+
+            function searchInIframe(query) {
+                const iframe = document.getElementById('docFrame');
+                if (!iframe || !iframe.contentWindow) return;
+
+                try {
+                    const found = iframe.contentWindow.find(query, false, false, true, false, true, false);
+                    if (!found) {
+                        alert('Không tìm thấy: ' + query);
+                    }
+                } catch (e) {
+                    console.warn('Search not supported in this document type');
+                }
+            }
+
+            function clearSearch() {
+                const iframe = document.getElementById('docFrame');
+                if (iframe && iframe.contentWindow) {
+                    try {
+                        iframe.contentWindow.find('', false, false, false, false, true, false);
+                    } catch (e) {}
+                }
+            }
+
+            // Bookmark management
+            $('#addBookmarkBtn').on('click', function() {
+                addBookmark();
+            });
+
+            $('#deleteBookmarkBtn').on('click', function() {
+                if (confirm('Xóa bookmark này?')) {
+                    deleteBookmark();
+                }
+            });
+
+            function checkBookmark() {
+                if (!window.JwtHelper || !window.JwtHelper.isAuthenticated()) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/api/bookmarks/check',
+                    type: 'GET',
+                    data: { documentId: documentId, pageNumber: currentPage },
+                    headers: {
+                        'Authorization': 'Bearer ' + window.JwtHelper.getToken()
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            currentBookmarkId = response.bookmarkId;
+                            $('#addBookmarkBtn').hide();
+                            $('#deleteBookmarkBtn').show();
+                        } else {
+                            currentBookmarkId = null;
+                            $('#addBookmarkBtn').show();
+                            $('#deleteBookmarkBtn').hide();
+                        }
+                    },
+                    error: function() {
+                        // If error, show add button
+                        $('#addBookmarkBtn').show();
+                        $('#deleteBookmarkBtn').hide();
+                    }
+                });
+            }
+
+            function addBookmark() {
+                const url = window.location.href;
+
+                $.ajax({
+                    url: '/api/bookmarks/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer ' + window.JwtHelper.getToken()
+                    },
+                    data: JSON.stringify({
+                        documentId: documentId,
+                        pageNumber: currentPage,
+                        title: `${documentTitle} - Trang ${currentPage}`,
+                        url: url
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            window.NotificationHub.showLocal('✅ Đã thêm bookmark', 'success');
+                            checkBookmark();
+                        } else {
+                            window.NotificationHub.showLocal('❌ ' + response.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        let msg = 'Không thể thêm bookmark';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        window.NotificationHub.showLocal('❌ ' + msg, 'error');
+                    }
+                });
+            }
+
+            function deleteBookmark() {
+                if (!currentBookmarkId) return;
+
+                $.ajax({
+                    url: '/api/bookmarks/' + currentBookmarkId,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + window.JwtHelper.getToken()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.NotificationHub.showLocal('✅ Đã xóa bookmark', 'success');
+                            checkBookmark();
+                        } else {
+                            window.NotificationHub.showLocal('❌ ' + response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        window.NotificationHub.showLocal('❌ Không thể xóa bookmark', 'error');
+                    }
+                });
+            }
+
+            function initPdfViewer() {
+                // If PDF.js is available, use it for better control
+                // Otherwise, use iframe with page parameter
+                const iframe = $('#docFrame');
+                const src = iframe.attr('src');
+
+                // Try to detect total pages (this requires PDF.js or server-side processing)
+                // For now, we'll use a simple approach
+                totalPages = 100; // Default, will be updated if we can detect actual pages
+                $('#totalPages').text(totalPages);
+                updatePageControls();
+                checkBookmark();
+            }
+
+            // Initialize auth UI
+            if (window.JwtHelper && window.JwtHelper.isAuthenticated()) {
+                $('.auth-only').show();
+                $('.guest-only').hide();
+                checkBookmark();
+            } else {
+                $('.auth-only').hide();
+                $('.guest-only').show();
+            }
+        });
+    </script>
+}

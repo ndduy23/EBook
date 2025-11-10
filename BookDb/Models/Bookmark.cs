@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookDb.Models
 {
@@ -9,17 +8,20 @@ namespace BookDb.Models
         [Key]
         public int Id { get; set; }
 
+        // Link to DocumentPage (preferred by migrations and views)
+        public int? DocumentPageId { get; set; }
+        public DocumentPage? DocumentPage { get; set; }
+
+        // Also keep DocumentId and PageNumber for services that use them
+        public int? DocumentId { get; set; }
+        public int? PageNumber { get; set; }
+        public Document? Document { get; set; }
+
         [Required]
-        public int DocumentPageId { get; set; }
+        public string Url { get; set; } = string.Empty;
 
-        public DocumentPage DocumentPage { get; set; }
+        public string? Title { get; set; }
 
-        [Required]
-        public string Url { get; set; } 
-
-        public string? Title { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-
     }
 }

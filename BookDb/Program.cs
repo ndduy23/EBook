@@ -2,7 +2,6 @@
 using BookDb.Models;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
-using BookDb.Repository.Interfaces;
 using BookDb.Services.Implementations;
 using BookDb.Services.Interfaces;
 using BookDb.Repositories.Interfaces;

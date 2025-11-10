@@ -12,26 +12,20 @@ namespace BookDb.Models
         public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        {
-            base.OnConfiguring(builder);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Document>()
-                .HasMany(d => d.Pages)
-                .WithOne(p => p.Document)
-                .HasForeignKey(p => p.DocumentId)
+            // Document - Bookmark relationship
+            modelBuilder.Entity<Bookmark>()
+                .HasOne(b => b.Document)
+                .WithMany(d => d.Bookmarks)
+                .HasForeignKey(b => b.DocumentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Create index for faster bookmark lookups
             modelBuilder.Entity<Bookmark>()
-                .HasOne(b => b.DocumentPage)
-                .WithOne(p => p.Bookmark)
-                .HasForeignKey<Bookmark>(b => b.DocumentPageId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasIndex(b => new { b.DocumentId, b.PageNumber });
 
             // RefreshToken configuration
             modelBuilder.Entity<RefreshToken>()

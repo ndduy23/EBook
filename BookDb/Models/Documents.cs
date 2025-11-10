@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 
 namespace BookDb.Models
@@ -11,23 +10,23 @@ namespace BookDb.Models
         public int Id { get; set; }
 
         [Required, MaxLength(500)]
-        public string Title { get; set; }         
+        public string Title { get; set; } = string.Empty;
 
         [MaxLength(200)]
-        public string Category { get; set; }      
+        public string Category { get; set; } = string.Empty;
 
         [MaxLength(200)]
-        public string Author { get; set; }         
+        public string Author { get; set; } = string.Empty;
 
         [Required, MaxLength(500)]
-        public string FileName { get; set; }       
+        public string FileName { get; set; } = string.Empty;
 
-        public long FileSize { get; set; }          
+        public long FileSize { get; set; }
 
-        public string? FilePath { get; set; }   
+        public string? FilePath { get; set; }
 
         [MaxLength(100)]
-        public string? ContentType { get; set; }   
+        public string? ContentType { get; set; }
 
         public string? Description { get; set; }
 
@@ -38,7 +37,9 @@ namespace BookDb.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation
-        public ICollection<DocumentPage> Pages { get; set; }
-    }
+        public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 
+        // Pages navigation
+        public ICollection<DocumentPage> Pages { get; set; } = new List<DocumentPage>();
+    }
 }

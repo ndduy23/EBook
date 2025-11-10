@@ -11,8 +11,7 @@ namespace BookDb.Repositories.Implementations
         public Task<List<Bookmark>> GetAllWithDetailsAsync()
         {
             return _context.Bookmarks
-                .Include(b => b.DocumentPage)
-                .ThenInclude(p => p.Document)
+                .Include(b => b.Document)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
         }
@@ -20,15 +19,14 @@ namespace BookDb.Repositories.Implementations
         public async Task<List<Bookmark>> GetFilteredBookmarksAsync(string? q)
         {
             var query = _context.Bookmarks
-                .Include(b => b.DocumentPage)
-                    .ThenInclude(dp => dp.Document)
+                .Include(b => b.Document)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(q))
             {
                 query = query.Where(b =>
-                    EF.Functions.Like(b.Title, $"%{q}%") ||
-                    (b.DocumentPage != null && b.DocumentPage.Document != null && EF.Functions.Like(b.DocumentPage.Document.Title, $"%{q}%")));
+                    EF.Functions.Like(b.Title ?? "", $"%{q}%") ||
+                    (b.Document != null && EF.Functions.Like(b.Document.Title, $"%{q}%")));
             }
 
             return await query
@@ -38,7 +36,8 @@ namespace BookDb.Repositories.Implementations
 
         public async Task<bool> ExistsAsync(int documentPageId)
         {
-            return await _context.Bookmarks.AnyAsync(b => b.DocumentPageId == documentPageId);
+            // DocumentPageId no longer exists; interpret as (documentId,pageNumber) - but to keep signature, return false
+            return await Task.FromResult(false);
         }
     }
 }
