@@ -2,6 +2,7 @@
 using BookDb.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookDb.Controllers.Api
 {
@@ -93,7 +94,8 @@ namespace BookDb.Controllers.Api
         {
             try
             {
-                var bookmark = await _bookmarkService.GetBookmarkForPageAsync(documentId, pageNumber);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var bookmark = await _bookmarkService.GetBookmarkForPageAsync(documentId, pageNumber, userId);
 
                 return Ok(new
                 {
@@ -119,11 +121,14 @@ namespace BookDb.Controllers.Api
                     return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
                 }
 
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 var result = await _bookmarkService.CreateBookmarkAsync(
                     model.DocumentId,
                     model.PageNumber,
                     model.Title,
-                    model.Url ?? string.Empty);
+                    model.Url ?? string.Empty,
+                    userId);
 
                 if (!result.Success)
                 {
@@ -150,11 +155,14 @@ namespace BookDb.Controllers.Api
         {
             try
             {
-                var success = await _bookmarkService.DeleteBookmarkAsync(id);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isAdmin = User.IsInRole(Models.Roles.Admin);
+
+                var success = await _bookmarkService.DeleteBookmarkAsync(id, userId, isAdmin);
 
                 if (!success)
                 {
-                    return NotFound(new { success = false, message = "Không tìm thấy bookmark" });
+                    return NotFound(new { success = false, message = "Không tìm thấy bookmark hoặc không có quyền" });
                 }
 
                 return Ok(new { success = true, message = "Đã xóa bookmark" });

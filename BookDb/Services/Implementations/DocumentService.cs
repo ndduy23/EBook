@@ -33,12 +33,17 @@ namespace BookDb.Services.Implementations
             return _docRepo.GetPagedAndSearchedAsync(q, page, pageSize);
         }
 
+        public Task<List<Document>> GetDocumentsAsync(string? q, string? userId, bool onlyMine, int page, int pageSize)
+        {
+            return _docRepo.GetPagedAndSearchedAsync(q, userId, onlyMine, page, pageSize);
+        }
+
         public Task<Document?> GetDocumentForViewingAsync(int id)
         {
             return _docRepo.GetByIdWithPagesAsync(id);
         }
 
-        public async Task CreateDocumentAsync(IFormFile file, string title, string category, string author, string description)
+        public async Task CreateDocumentAsync(IFormFile file, string title, string category, string? authorName, string description, int? authorId = null, string? ownerId = null)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("File not selected.");
@@ -64,15 +69,27 @@ namespace BookDb.Services.Implementations
             {
                 Title = title,
                 Category = category,
-                Author = author,
+                Author = authorName ?? string.Empty,
                 Description = description,
                 FilePath = $"/Uploads/{storedName}",
                 FileName = file.FileName,
                 FileSize = file.Length,
                 ContentType = file.ContentType,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                OwnerId = ownerId,
+                AuthorId = authorId
             };
+
+            // If authorId provided, resolve name
+            if (authorId.HasValue)
+            {
+                var author = await _context.Authors.FindAsync(authorId.Value);
+                if (author != null)
+                {
+                    doc.Author = author.Name;
+                }
+            }
 
             await _docRepo.AddAsync(doc);
             await _context.SaveChangesAsync();

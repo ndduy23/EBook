@@ -11,6 +11,7 @@ namespace BookDb.Models
         public DbSet<DocumentPage> DocumentPages { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Author> Authors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,14 @@ namespace BookDb.Models
             // Create index for faster bookmark lookups
             modelBuilder.Entity<Bookmark>()
                 .HasIndex(b => new { b.DocumentId, b.PageNumber });
+
+            // Document - Author relationship (store author name but link optional)
+            modelBuilder.Entity<Document>()
+                .HasOne<Author>()
+                .WithMany()
+                .HasForeignKey(d => d.Author)
+                .HasPrincipalKey(a => a.Name)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // RefreshToken configuration
             modelBuilder.Entity<RefreshToken>()

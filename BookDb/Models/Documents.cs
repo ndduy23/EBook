@@ -15,8 +15,13 @@ namespace BookDb.Models
         [MaxLength(200)]
         public string Category { get; set; } = string.Empty;
 
+        // Keep Author name for display but also reference Author entity via AuthorId
         [MaxLength(200)]
         public string Author { get; set; } = string.Empty;
+
+        // FK to Author entity
+        public int? AuthorId { get; set; }
+        public Author? AuthorEntity { get; set; }
 
         [Required, MaxLength(500)]
         public string FileName { get; set; } = string.Empty;
@@ -35,6 +40,10 @@ namespace BookDb.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Owner (who uploaded the document)
+        [MaxLength(450)]
+        public string? OwnerId { get; set; }
 
         // Navigation
         public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();

@@ -5,6 +5,7 @@ using BookDb.Views.Documents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 [Route("documents")]
 [Authorize] // Require authentication for all actions
@@ -21,9 +22,10 @@ public class DocumentsController : Controller
 
     // GET /documents
     [HttpGet("")]
-    public async Task<IActionResult> Index(string? q, int page = 1, int pageSize = 20)
+    public async Task<IActionResult> Index(string? q, int page =1, int pageSize =20, bool onlyMine = false)
     {
-        var list = await _docService.GetDocumentsAsync(q, page, pageSize);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var list = await _docService.GetDocumentsAsync(q, userId, onlyMine, page, pageSize);
         var viewModel = new IndexModel();
         viewModel.Initialize(list, q);
 
@@ -44,15 +46,16 @@ public class DocumentsController : Controller
         return View(viewModel);
     }
 
-    // POST /documents/create
+    // POST /documents/create (MVC)
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
     [Authorize(Policy = Policies.CanEditDocuments)]
-    public async Task<IActionResult> Create(IFormFile file, string title, string category, string author, string description)
+    public async Task<IActionResult> Create(IFormFile file, string title, string category, string author, string description, int? authorId)
     {
         try
         {
-            await _docService.CreateDocumentAsync(file, title, category, author, description);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await _docService.CreateDocumentAsync(file, title, category, author, description, authorId, userId);
             return RedirectToAction("Index");
         }
         catch (ArgumentException ex)
@@ -64,7 +67,7 @@ public class DocumentsController : Controller
 
     // GET /documents/view/{id}
     [HttpGet("view/{id}")]
-    public async Task<IActionResult> ViewDocument(int id, int page = 1, string mode = "original")
+    public async Task<IActionResult> ViewDocument(int id, int page =1, string mode = "original")
     {
         var document = await _docService.GetDocumentForViewingAsync(id);
         if (document == null) return NotFound();
@@ -82,19 +85,16 @@ public class DocumentsController : Controller
             }
         }
 
-        int totalPages = 0;
+        int totalPages =0;
         DocumentPage? currentPageEntity = null;
 
         if (mode == "paged" && document.Pages.Any())
         {
-            // Ensure page is within valid range
             totalPages = document.Pages.Count;
-            if (page < 1) page = 1;
+            if (page <1) page =1;
             if (page > totalPages) page = totalPages;
 
-            var currentPage = document.Pages.OrderBy(p => p.PageNumber).Skip(page - 1).FirstOrDefault();
-
-            // Reload the page entity via service to include related data (e.g., Bookmark)
+            var currentPage = document.Pages.OrderBy(p => p.PageNumber).Skip(page -1).FirstOrDefault();
             if (currentPage != null)
             {
                 currentPageEntity = await _docService.GetDocumentPageByIdAsync(currentPage.Id);
@@ -111,6 +111,17 @@ public class DocumentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
+        var doc = await _docService.GetDocumentByIdAsync(id);
+        if (doc == null) return NotFound();
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole(BookDb.Models.Roles.Admin);
+
+        if (!isAdmin && !string.Equals(doc.OwnerId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
         var success = await _docService.DeleteDocumentAsync(id);
         if (!success) return NotFound();
         return RedirectToAction("Index");
@@ -122,6 +133,14 @@ public class DocumentsController : Controller
     {
         var doc = await _docService.GetDocumentByIdAsync(id);
         if (doc == null) return NotFound();
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole(BookDb.Models.Roles.Admin);
+        if (!isAdmin && !string.Equals(doc.OwnerId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
         var viewModel = new EditModel();
         viewModel.Initialize(doc);
         return View(viewModel);
@@ -132,14 +151,22 @@ public class DocumentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, IFormFile? file, string title, string category, string author, string description)
     {
+        var doc = await _docService.GetDocumentByIdAsync(id);
+        if (doc == null) return NotFound();
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole(BookDb.Models.Roles.Admin);
+        if (!isAdmin && !string.Equals(doc.OwnerId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
         var success = await _docService.UpdateDocumentAsync(id, file, title, category, author, description);
         if (!success) return NotFound();
 
-        // Get updated document to send full data via SignalR
         var updatedDoc = await _docService.GetDocumentByIdAsync(id);
         if (updatedDoc != null)
         {
-            // Send detailed document update event for auto-refresh
             await _hubContext.Clients.All.SendAsync("DocumentUpdated", new
             {
                 Id = id,

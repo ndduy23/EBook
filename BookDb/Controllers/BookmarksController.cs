@@ -3,6 +3,7 @@ using BookDb.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using BookDb.Hubs;
 using BookDb.Views.Bookmarks;
+using System.Security.Claims;
 
 namespace BookDb.Controllers
 {
@@ -63,7 +64,9 @@ namespace BookDb.Controllers
                 var url = Url.Action("ViewDocument", "Documents",
                     new { id = page.DocumentId, page = page.PageNumber, mode = "paged" })!;
 
-                var result = await _bookmarkService.CreateBookmarkAsync(documentPageId, title, url);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var result = await _bookmarkService.CreateBookmarkAsync(documentPageId, title, url, userId);
 
                 if (!result.Success)
                 {
@@ -118,7 +121,6 @@ namespace BookDb.Controllers
         {
             try
             {
-                // Get bookmark info before deletion for SignalR notification
                 var bookmark = await _bookmarkService.GetBookmarkByIdAsync(id);
                 if (bookmark == null)
                 {
@@ -131,7 +133,10 @@ namespace BookDb.Controllers
                     return NotFound();
                 }
 
-                var success = await _bookmarkService.DeleteBookmarkAsync(id);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isAdmin = User.IsInRole(Models.Roles.Admin);
+
+                var success = await _bookmarkService.DeleteBookmarkAsync(id, userId, isAdmin);
                 if (!success)
                 {
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

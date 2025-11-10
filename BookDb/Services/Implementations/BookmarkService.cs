@@ -52,7 +52,8 @@ namespace BookDb.Services.Implementations
         public async Task<(bool Success, string? ErrorMessage, int? BookmarkId)> CreateBookmarkAsync(
             int documentPageId,
             string? title,
-            string url)
+            string url,
+            string? userId = null)
         {
             var page = await GetDocumentPageForBookmarkCreation(documentPageId);
             if (page == null)
@@ -60,8 +61,8 @@ namespace BookDb.Services.Implementations
                 return (false, "Trang không tồn tại.", null);
             }
 
-            // Check existence
-            var exists = await _bookmarkRepo.ExistsAsync(documentPageId);
+            // Check existence for this user+page
+            var exists = await _context.Bookmarks.AnyAsync(b => b.DocumentPageId == documentPageId && b.UserId == userId);
             if (exists)
             {
                 return (false, "Bookmark đã tồn tại cho trang này.", null);
@@ -76,7 +77,8 @@ namespace BookDb.Services.Implementations
                 PageNumber = page.PageNumber,
                 Url = url,
                 Title = bookmarkTitle,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserId = userId
             };
 
             await _bookmarkRepo.AddAsync(bookmark);
@@ -99,14 +101,15 @@ namespace BookDb.Services.Implementations
             int documentId,
             int pageNumber,
             string? title,
-            string url)
+            string url,
+            string? userId = null)
         {
             // Check if document exists
             var doc = await _docRepo.GetByIdAsync(documentId);
             if (doc == null) return (false, "Tài liệu không tồn tại.", null);
 
-            // Check existence
-            var exists = await _context.Bookmarks.AnyAsync(b => b.DocumentId == documentId && b.PageNumber == pageNumber);
+            // Check existence for this user
+            var exists = await _context.Bookmarks.AnyAsync(b => b.DocumentId == documentId && b.PageNumber == pageNumber && b.UserId == userId);
             if (exists) return (false, "Đã có bookmark cho trang này.", null);
 
             var bookmarkTitle = title ?? $"{doc.Title} - Trang {pageNumber}";
@@ -117,7 +120,8 @@ namespace BookDb.Services.Implementations
                 PageNumber = pageNumber,
                 Url = url,
                 Title = bookmarkTitle,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserId = userId
             };
 
             await _bookmarkRepo.AddAsync(bookmark);
@@ -135,10 +139,17 @@ namespace BookDb.Services.Implementations
             return (true, null, bookmark.Id);
         }
 
-        public async Task<bool> DeleteBookmarkAsync(int id)
+        public async Task<bool> DeleteBookmarkAsync(int id, string? userId = null, bool isAdmin = false)
         {
             var bookmark = await _bookmarkRepo.GetByIdAsync(id);
             if (bookmark == null) return false;
+
+            // Only owner or admin may delete
+            if (!isAdmin && !string.Equals(bookmark.UserId, userId, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Unauthorized delete attempt for bookmark {BookmarkId} by user {UserId}", id, userId);
+                return false;
+            }
 
             var bookmarkTitle = bookmark.Title ?? "Bookmark";
 
@@ -166,10 +177,10 @@ namespace BookDb.Services.Implementations
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<Bookmark?> GetBookmarkForPageAsync(int documentId, int pageNumber)
+        public async Task<Bookmark?> GetBookmarkForPageAsync(int documentId, int pageNumber, string? userId = null)
         {
             return await _context.Bookmarks
-                .FirstOrDefaultAsync(b => b.DocumentId == documentId && b.PageNumber == pageNumber);
+                .FirstOrDefaultAsync(b => b.DocumentId == documentId && b.PageNumber == pageNumber && b.UserId == userId);
         }
 
         public async Task<DocumentPage?> GetDocumentPageForBookmarkCreation(int documentPageId)

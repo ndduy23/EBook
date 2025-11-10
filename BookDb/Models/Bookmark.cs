@@ -23,5 +23,9 @@ namespace BookDb.Models
         public string? Title { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Owner of this bookmark (user id)
+        [MaxLength(450)]
+        public string? UserId { get; set; }
     }
 }

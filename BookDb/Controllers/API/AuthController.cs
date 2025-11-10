@@ -20,8 +20,13 @@ namespace BookDb.Controllers
         {
             _logger.LogInformation("Login page accessed");
 
-            // If already logged in, redirect to documents
-            if (User.Identity?.IsAuthenticated == true)
+            // Clear any existing cookies to prevent authentication issues
+            Response.Cookies.Delete("token");
+            Response.Cookies.Delete("refreshToken");
+
+            // Check if user is authenticated via JWT (not cookie)
+            var token = Request.Cookies["token"];
+            if (!string.IsNullOrEmpty(token) && User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Documents");
             }
@@ -36,8 +41,13 @@ namespace BookDb.Controllers
         {
             _logger.LogInformation("Register page accessed");
 
-            // If already logged in, redirect to documents
-            if (User.Identity?.IsAuthenticated == true)
+            // Clear any existing cookies to prevent authentication issues
+            Response.Cookies.Delete("token");
+            Response.Cookies.Delete("refreshToken");
+
+            // Check if user is authenticated via JWT (not cookie)
+            var token = Request.Cookies["token"];
+            if (!string.IsNullOrEmpty(token) && User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Documents");
             }
@@ -49,7 +59,7 @@ namespace BookDb.Controllers
         [HttpGet("logout")]
         public IActionResult Logout()
         {
-            _logger.LogInformation("User logged out");
+            _logger.LogInformation("User logged out via GET");
 
             // Clear cookies
             Response.Cookies.Delete("token");

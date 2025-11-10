@@ -1,235 +1,403 @@
-@model BookDb.Views.Home.IndexModel
+﻿@model BookDb.Views.Home.IndexModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = "Trang chủ - BookDb";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
     .hero-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 80px 20px;
+        padding: 80px 0;
         border-radius: 20px;
-        margin: 40px 0;
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        margin-bottom: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
     }
 
-        .hero-section h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
         }
 
-        .hero-section p {
-            font-size: 1.3rem;
-            margin-bottom: 30px;
-            opacity: 0.95;
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
         }
 
-    .hero-buttons .btn {
-        margin: 10px;
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        animation: fadeInDown 1s ease-out;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        opacity: 0.95;
+        margin-bottom: 30px;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .hero-buttons {
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+    .btn-hero {
         padding: 15px 40px;
         font-size: 1.1rem;
-        font-weight: bold;
+        font-weight: 600;
         border-radius: 50px;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
     }
 
-        .hero-buttons .btn:hover {
+    .btn-hero-primary {
+        background: white;
+        color: #667eea;
+        border: 2px solid white;
+    }
+
+        .btn-hero-primary:hover {
+            background: transparent;
+            color: white;
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
+
+    .btn-hero-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+        .btn-hero-outline:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+    .features-section {
+        margin: 60px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 50px;
+        color: #333;
+    }
 
     .feature-card {
         background: white;
-        padding: 30px;
         border-radius: 15px;
+        padding: 40px 30px;
         text-align: center;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: transform 0.3s;
-        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
         height: 100%;
+        animation: fadeInUp 1s ease-out;
+        margin-bottom: 30px;
     }
 
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
-        .feature-card i {
-            font-size: 3rem;
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .feature-card h4 {
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .feature-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-    .stats-section {
-        background: #f8f9fa;
-        padding: 40px;
-        border-radius: 15px;
-        margin: 40px 0;
-        text-align: center;
+    .feature-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
-    .stat-item {
-        display: inline-block;
-        margin: 20px 40px;
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
     }
 
-        .stat-item h2 {
-            color: #667eea;
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .stat-item p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-    @@media (max-width: 768px) {
-        .hero-section h1
-
-    {
-        font-size: 2rem;
-    }
-
-    .hero-section p {
+    .feature-description {
+        color: #666;
+        line-height: 1.6;
         font-size: 1rem;
     }
 
-    .stat-item {
-        display: block;
-        margin: 20px 0;
+    .stats-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 60px 0;
+        border-radius: 20px;
+        margin: 60px 0;
     }
 
+    .stat-card {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        color: white;
+        padding: 80px 0;
+        border-radius: 20px;
+        text-align: center;
+        margin: 60px 0;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .cta-description {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        margin-bottom: 40px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .btn-hero {
+            padding: 12px 30px;
+            font-size: 1rem;
+        }
     }
 </style>
 
+<!-- Hero Section -->
 <div class="hero-section">
-    <h1>?? @Model.GetWelcomeText() to BookDb</h1>
-    <p>H? th?ng qu?n l� t�i li?u th�ng minh v?i t�nh n?ng bookmark v� real-time collaboration</p>
-
-    <div class="hero-buttons">
-        <div class="guest-only">
-            <a href="/documents" class="btn btn-light btn-lg">
-                <i class="bi bi-eye"></i> Xem T�i Li?u
+    <div class="hero-content text-center">
+        <h1 class="hero-title">
+            <i class="bi bi-book"></i> BookDb
+        </h1>
+        <p class="hero-subtitle">
+            Hệ thống quản lý tài liệu thông minh - Lưu trữ, tìm kiếm và chia sẻ dễ dàng
+        </p>
+        <div class="hero-buttons">
+            <a href="/documents" class="btn-hero btn-hero-primary">
+                <i class="bi bi-folder-open"></i> Xem tài liệu
             </a>
-            <a href="/auth/register" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-person-plus"></i> ??ng K� Ngay
+            <a href="/auth/register" class="btn-hero btn-hero-outline guest-only">
+                <i class="bi bi-person-plus"></i> Đăng ký ngay
             </a>
-            <a href="/auth/login" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-box-arrow-in-right"></i> ??ng Nh?p
-            </a>
-        </div>
-
-        <div class="auth-only" style="display:none;">
-            <a href="/documents" class="btn btn-light btn-lg">
-                <i class="bi bi-file-earmark-text"></i> T�i Li?u C?a T�i
-            </a>
-            <a href="/documents/create" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-plus-circle"></i> Th�m T�i Li?u M?i
-            </a>
-            <a href="/bookmarks" class="btn btn-outline-light btn-lg">
-                <i class="bi bi-bookmark-star"></i> Bookmarks
+            <a href="/documents/create" class="btn-hero btn-hero-outline auth-required" style="display:none;">
+                <i class="bi bi-file-earmark-plus"></i> Tải lên tài liệu
             </a>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-cloud-upload"></i>
-            <h4>Upload ?a ??nh D?ng</h4>
-            <p>H? tr? PDF, DOCX, TXT, XLSX. T? ??ng x? l� v� chuy?n ??i sang ??nh d?ng hi?n th? t?i ?u</p>
+<!-- Features Section -->
+<div class="features-section">
+    <h2 class="section-title">Tính năng nổi bật</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-cloud-upload"></i>
+                </div>
+                <h3 class="feature-title">Tải lên dễ dàng</h3>
+                <p class="feature-description">
+                    Hỗ trợ nhiều định dạng: PDF, DOCX, XLSX, TXT.
+                    Kéo thả hoặc chọn file để tải lên nhanh chóng.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h3 class="feature-title">Tìm kiếm thông minh</h3>
+                <p class="feature-description">
+                    Tìm kiếm tài liệu theo tiêu đề, tác giả, lĩnh vực.
+                    Kết quả nhanh chóng và chính xác.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-bookmark-star"></i>
+                </div>
+                <h3 class="feature-title">Bookmark & Quản lý</h3>
+                <p class="feature-description">
+                    Đánh dấu trang quan trọng, tổ chức tài liệu theo danh mục.
+                    Truy cập nhanh bất cứ lúc nào.
+                </p>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-bookmark-heart"></i>
-            <h4>Bookmark Th�ng Minh</h4>
-            <p>?�nh d?u trang quan tr?ng, qu?n l� v� truy c?p nhanh m?i l�c m?i n?i</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h3 class="feature-title">Bảo mật cao</h3>
+                <p class="feature-description">
+                    Hệ thống xác thực JWT, phân quyền người dùng.
+                    Dữ liệu được mã hóa và bảo vệ an toàn.
+                </p>
+            </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-lightning"></i>
-            <h4>Real-time Updates</h4>
-            <p>C?p nh?t t?c th?i v?i SignalR. Nh?n th�ng b�o khi c� thay ??i quan tr?ng</p>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-lightning"></i>
+                </div>
+                <h3 class="feature-title">Cập nhật Real-time</h3>
+                <p class="feature-description">
+                    Sử dụng SignalR để đồng bộ dữ liệu tức thì.
+                    Nhận thông báo khi có tài liệu mới.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="feature-title">Cộng tác nhóm</h3>
+                <p class="feature-description">
+                    Chia sẻ tài liệu với team, phân quyền linh hoạt.
+                    Làm việc nhóm hiệu quả hơn.
+                </p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-search"></i>
-            <h4>T�m Ki?m M?nh M?</h4>
-            <p>T�m ki?m nhanh theo ti�u ??, t�c gi?, l?nh v?c v?i k?t qu? t?c th�</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-shield-check"></i>
-            <h4>B?o M?t Cao</h4>
-            <p>JWT authentication, role-based authorization, b?o v? d? li?u ng??i d�ng</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="feature-card">
-            <i class="bi bi-phone"></i>
-            <h4>Responsive Design</h4>
-            <p>Giao di?n t?i ?u cho m?i thi?t b?: Desktop, Tablet, Mobile</p>
-        </div>
-    </div>
-</div>
-
+<!-- Stats Section -->
 <div class="stats-section">
-    <h3 class="mb-4">Th?ng K� H? Th?ng</h3>
-    <div class="stat-item">
-        <h2 id="documentCount">0</h2>
-        <p>T�i Li?u</p>
-    </div>
-    <div class="stat-item">
-        <h2 id="userCount">0</h2>
-        <p>Ng??i D�ng</p>
-    </div>
-    <div class="stat-item">
-        <h2 id="bookmarkCount">0</h2>
-        <p>Bookmarks</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="docCount">0</div>
+                    <div class="stat-label">Tài liệu</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="userCount">0</div>
+                    <div class="stat-label">Người dùng</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number" id="bookmarkCount">0</div>
+                    <div class="stat-label">Bookmark</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Hỗ trợ</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="text-center mt-5 mb-5">
-    <h3>S?n s�ng b?t ??u?</h3>
-    <p class="text-muted mb-4">Tham gia ngay h�m nay ?? qu?n l� t�i li?u hi?u qu? h?n</p>
-
+<!-- CTA Section -->
+<div class="cta-section">
+    <h2 class="cta-title">Sẵn sàng bắt đầu?</h2>
+    <p class="cta-description">
+        Tham gia cùng hàng trăm người dùng đang sử dụng BookDb để quản lý tài liệu hiệu quả hơn
+    </p>
     <div class="guest-only">
-        <a href="/auth/register" class="btn btn-primary btn-lg me-2">
-            <i class="bi bi-person-plus"></i> ??ng K� Mi?n Ph�
+        <a href="/auth/register" class="btn-hero btn-hero-primary">
+            <i class="bi bi-rocket"></i> Đăng ký miễn phí
         </a>
-        <a href="/documents" class="btn btn-outline-primary btn-lg">
-            <i class="bi bi-eye"></i> Xem Demo
+        <a href="/auth/login" class="btn-hero btn-hero-outline">
+            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
         </a>
     </div>
-
-    <div class="auth-only" style="display:none;">
-        <a href="/documents/create" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-circle"></i> T?o T�i Li?u ??u Ti�n
+    <div class="auth-required" style="display:none;">
+        <a href="/documents/create" class="btn-hero btn-hero-primary">
+            <i class="bi bi-file-earmark-plus"></i> Tải lên tài liệu đầu tiên
+        </a>
+        <a href="/documents" class="btn-hero btn-hero-outline">
+            <i class="bi bi-folder-open"></i> Xem tất cả tài liệu
         </a>
     </div>
 </div>
@@ -237,44 +405,72 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Update UI based on authentication
-            updateAuthUI();
-
-            // Load statistics
-            loadStats();
-
-            function updateAuthUI() {
-                const isAuthenticated = window.JwtHelper && window.JwtHelper.isAuthenticated();
-
-                if (isAuthenticated) {
-                    $('.auth-only').show();
-                    $('.guest-only').hide();
-                } else {
-                    $('.auth-only').hide();
-                    $('.guest-only').show();
-                }
-            }
-
-            function loadStats() {
-                // Animate counters
-                animateCounter('#documentCount', 150);
-                animateCounter('#userCount', 50);
-                animateCounter('#bookmarkCount', 300);
-            }
-
-            function animateCounter(selector, target) {
+            // Animate counter numbers
+            function animateCounter(element, target) {
                 let current = 0;
                 const increment = target / 50;
-                const timer = setInterval(function() {
+                const timer = setInterval(() => {
                     current += increment;
                     if (current >= target) {
-                        $(selector).text(target);
+                        $(element).text(Math.floor(target));
                         clearInterval(timer);
                     } else {
-                        $(selector).text(Math.floor(current));
+                        $(element).text(Math.floor(current));
                     }
                 }, 30);
             }
+
+            // Load stats from API
+            function loadStats() {
+                $.ajax({
+                    url: '/api/documents',
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            const docCount = response.count || response.data.length || 0;
+                            animateCounter('#docCount', docCount);
+                        }
+                    },
+                    error: function() {
+                        $('#docCount').text('100+');
+                    }
+                });
+
+                // Simulate other stats (replace with real API calls)
+                animateCounter('#userCount', 50);
+                animateCounter('#bookmarkCount', 200);
+            }
+
+            // Check authentication and update UI
+            if (window.JwtHelper && window.JwtHelper.isAuthenticated()) {
+                $('.auth-required').show();
+                $('.guest-only').hide();
+            } else {
+                $('.auth-required').hide();
+                $('.guest-only').show();
+            }
+
+            // Load stats
+            loadStats();
+
+            // Add scroll animation for feature cards
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            $('.feature-card').each(function() {
+                this.style.opacity = '0';
+                this.style.transform = 'translateY(30px)';
+                this.style.transition = 'all 0.5s ease';
+                observer.observe(this);
+            });
         });
     </script>
 }
