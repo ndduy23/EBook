@@ -45,9 +45,6 @@ namespace BookDb.Models
         [MaxLength(450)]
         public string? OwnerId { get; set; }
 
-        // Navigation
-        public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
-
         // Pages navigation
         public ICollection<DocumentPage> Pages { get; set; } = new List<DocumentPage>();
     }

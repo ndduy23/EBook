@@ -310,6 +310,17 @@ window.JwtHelper = (function () {
                 $('.auth-required').hide();
             }
 
+            // Show owner-only controls if current user is the owner
+            $('.owner-only').each(function () {
+                const ownerId = $(this).data('owner-id');
+                if (ownerId && ownerId === user.id) {
+                    $(this).show();
+                } else {
+                    // If admin already shown above, keep shown
+                    if (!isAdmin) $(this).hide();
+                }
+            });
+
             // Update user info
             $('#authUserName').text(user.fullName || user.email || 'User');
             $('#authUserEmail').text(user.email || '');
@@ -324,6 +335,7 @@ window.JwtHelper = (function () {
             $('.auth-required').hide();
             $('.auth-only').hide();
             $('.admin-only').hide();
+            $('.owner-only').hide();
             $('.guest-only').show();
             console.log('User not authenticated');
         }

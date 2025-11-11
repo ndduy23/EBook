@@ -202,21 +202,11 @@ namespace BookDb.Services.Implementations
 
         public Task<Document?> GetDocumentByIdAsync(int id) => _docRepo.GetByIdAsync(id);
 
-        // New methods to satisfy interface
         public async Task<DocumentPage?> GetDocumentPageByIdAsync(int id)
         {
-            return await _context.Set<DocumentPage>()
-                .Include(p => p.Bookmark)
+            return await _context.DocumentPages
                 .Include(p => p.Document)
                 .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<List<Bookmark>> GetBookmarksAsync()
-        {
-            return await _context.Bookmarks
-                .Include(b => b.Document)
-                .OrderByDescending(b => b.CreatedAt)
-                .ToListAsync();
         }
     }
 }

@@ -82,11 +82,6 @@ namespace BookDb.Views.Documents
                 .FirstOrDefault(p => p.PageNumber == Page);
         }
 
-        public bool CurrentPageHasBookmark()
-        {
-            var currentPageDoc = GetCurrentPageDocument();
-            return currentPageDoc?.Bookmark != null;
-        }
 
         public bool IsHtmlContent()
         {

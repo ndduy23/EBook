@@ -7,6 +7,5 @@ namespace BookDb.Repositories.Interfaces
     {
         Task<DocumentPage?> GetByIdWithDocumentAsync(int id);
         Task<IEnumerable<DocumentPage>> GetPagesByDocumentIdAsync(int documentId);
-        Task<IEnumerable<DocumentPage>> GetPagesWithBookmarksAsync(int documentId);
     }
 }

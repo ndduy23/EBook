@@ -12,6 +12,5 @@ namespace BookDb.Services.Interfaces
         Task<Document?> GetDocumentByIdAsync(int id);
         Task<DocumentPage?> GetDocumentPageByIdAsync(int id);
         Task<bool> UpdateDocumentAsync(int id, IFormFile? file, string title, string category, string author, string description);
-        Task<List<Bookmark>> GetBookmarksAsync();
     }
 }

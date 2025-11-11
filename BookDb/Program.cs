@@ -104,12 +104,10 @@ try
     // Repositories
     builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
-    builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
     builder.Services.AddScoped<IDocumentPageRepository, DocumentPageRepository>();
 
     // Services
     builder.Services.AddScoped<IDocumentService, DocumentService>();
-    builder.Services.AddScoped<IBookmarkService, BookmarkService>();
     builder.Services.AddScoped<IDocumentPageService, DocumentPageService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<IJwtService, JwtService>();

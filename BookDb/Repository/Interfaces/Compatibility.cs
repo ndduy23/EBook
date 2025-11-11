@@ -9,7 +9,5 @@ namespace BookDb.Repository.Interfaces
 
  public interface IDocumentPageRepository : global::BookDb.Repositories.Interfaces.IDocumentPageRepository { }
 
- public interface IBookmarkRepository : global::BookDb.Repositories.Interfaces.IBookmarkRepository { }
-
  public interface IRefreshTokenRepository : global::BookDb.Repositories.Interfaces.IRefreshTokenRepository { }
 }

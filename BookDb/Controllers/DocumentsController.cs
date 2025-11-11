@@ -194,12 +194,4 @@ public class DocumentsController : Controller
         if (page == null) return NotFound();
         return View("EditPage", page);
     }
-
-    [HttpGet("bookmark")]
-    [Authorize] // Any authenticated user can view their bookmarks
-    public async Task<IActionResult> Bookmark()
-    {
-        var bookmarks = await _docService.GetBookmarksAsync();
-        return View(bookmarks);
-    }
 }

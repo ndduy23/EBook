@@ -9,24 +9,12 @@ namespace BookDb.Models
 
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentPage> DocumentPages { get; set; }
-        public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Author> Authors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Document - Bookmark relationship
-            modelBuilder.Entity<Bookmark>()
-                .HasOne(b => b.Document)
-                .WithMany(d => d.Bookmarks)
-                .HasForeignKey(b => b.DocumentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Create index for faster bookmark lookups
-            modelBuilder.Entity<Bookmark>()
-                .HasIndex(b => new { b.DocumentId, b.PageNumber });
 
             // Document - Author relationship (store author name but link optional)
             modelBuilder.Entity<Document>()
