@@ -1,0 +1,65 @@
+﻿<div class="toolbar">
+    <div class="toolbar-group">
+        <button class="toolbar-btn" id="toggleSidebar" title="Toggle Sidebar">
+            <i class="bi bi-layout-sidebar"></i>
+        </button>
+    </div>
+
+    <div class="toolbar-group" id="pageControls">
+        <button class="toolbar-btn" id="prevPage" title="Previous Page">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <input type="number" id="pageNum" class="toolbar-input" value="1" min="1">
+        <span style="opacity:0.7;">/ <span id="pageCount">0</span></span>
+        <button class="toolbar-btn" id="nextPage" title="Next Page">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="toolbar-group">
+        <button class="toolbar-btn" id="zoomOut" title="Zoom Out">
+            <i class="bi bi-dash-lg"></i>
+        </button>
+        <span id="zoomLevel" style="min-width:50px; text-align: center;">100%</span>
+        <button class="toolbar-btn" id="zoomIn" title="Zoom In">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+        <button class="toolbar-btn" id="fitWidth" title="Fit Width">
+            <i class="bi bi-arrows-angle-contract"></i>
+        </button>
+    </div>
+
+    <div class="toolbar-group">
+        <button class="toolbar-btn" id="searchBtn" title="Search">
+            <i class="bi bi-search"></i>
+        </button>
+        <button class="toolbar-btn" id="highlightBtn" title="Highlight Mode">
+            <i class="bi bi-highlighter"></i>
+        </button>
+        <button class="toolbar-btn" id="editBtn" title="Edit Mode">
+            <i class="bi bi-pencil"></i>
+        </button>
+    </div>
+
+    <div class="toolbar-group">
+        <label style="margin-right:8px; font-weight:500;">Phân trang:</label>
+        <select id="paginationMode" class="toolbar-input" style="width:120px;">
+            <option value="items">Theo dòng/khối</option>
+            <option value="chars">Theo ký tự</option>
+        </select>
+        <input type="number" id="charsPerPage" class="toolbar-input" value="2000" min="100"
+               style="width:100px; margin-left:6px;" title="Số ký tự mỗi trang">
+    </div>
+
+    <div class="toolbar-group">
+        <button class="toolbar-btn" id="downloadBtn" title="Download">
+            <i class="bi bi-download"></i>
+        </button>
+        <button class="toolbar-btn" id="printBtn" title="Print">
+            <i class="bi bi-printer"></i>
+        </button>
+        <a href="/documents" class="toolbar-btn" title="Close">
+            <i class="bi bi-x-lg"></i>
+        </a>
+    </div>
+</div>

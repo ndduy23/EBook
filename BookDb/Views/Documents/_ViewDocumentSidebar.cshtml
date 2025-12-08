@@ -1,0 +1,39 @@
+﻿@model BookDb.Views.Documents.ViewDocumentModel
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h5 class="mb-1" style="color: #333; font-weight: 600;">@Model.GetDocumentTitle()</h5>
+        <small class="text-muted">
+            <i class="bi bi-person"></i> @Model.GetDocumentAuthor()
+        </small>
+    </div>
+
+    <div class="sidebar-tabs">
+        <div class="sidebar-tab active" data-tab="pages">
+            <i class="bi bi-file-earmark"></i> Trang
+        </div>
+        <div class="sidebar-tab" data-tab="bookmarks">
+            <i class="bi bi-bookmark"></i> Bookmark
+        </div>
+        <div class="sidebar-tab" data-tab="outline">
+            <i class="bi bi-list-ul"></i> Mục lục
+        </div>
+    </div>
+
+    <div class="sidebar-content">
+        <!-- Pages/Thumbnails -->
+        <div class="tab-pane active" data-content="pages" id="pagesContainer">
+            <p class="text-muted text-center">Đang tải...</p>
+        </div>
+
+        <!-- Bookmarks -->
+        <div class="tab-pane" data-content="bookmarks" id="bookmarksContainer" style="display:none;">
+            <p class="text-muted text-center">Chưa có bookmark</p>
+        </div>
+
+        <!-- Outline -->
+        <div class="tab-pane" data-content="outline" id="outlineContainer" style="display:none;">
+            <p class="text-muted text-center">Không có mục lục</p>
+        </div>
+    </div>
+</div>

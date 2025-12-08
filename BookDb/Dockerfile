@@ -1,45 +1,30 @@
-﻿# Stage 1: Build
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+
+# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-
-# Copy csproj và restore dependencies
 COPY ["BookDb/BookDb.csproj", "BookDb/"]
-RUN dotnet restore "BookDb/BookDb.csproj"
-
-# Copy toàn bộ source code
+RUN dotnet restore "./BookDb/BookDb.csproj"
 COPY . .
 WORKDIR "/src/BookDb"
+RUN dotnet build "./BookDb.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Build ứng dụng
-RUN dotnet build "BookDb.csproj" -c Release -o /app/build
-
-# Stage 2: Publish
+# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
-RUN dotnet publish "BookDb.csproj" -c Release -o /app/publish /p:UseAppHost=false
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./BookDb.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Stage 3: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
 WORKDIR /app
-
-# Cài đặt dependencies cho PDF processing (nếu cần)
-RUN apt-get update && apt-get install -y \
-    libgdiplus \
-    libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy published files
 COPY --from=publish /app/publish .
-
-# Tạo thư mục uploads
-RUN mkdir -p /app/wwwroot/uploads && chmod 777 /app/wwwroot/uploads
-
-# Expose ports
-EXPOSE 80
-EXPOSE 443
-
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_ENVIRONMENT=Production
-
-# Entry point
 ENTRYPOINT ["dotnet", "BookDb.dll"]

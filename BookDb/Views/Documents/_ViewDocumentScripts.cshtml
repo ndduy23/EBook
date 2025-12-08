@@ -1,0 +1,55 @@
+﻿@{
+    var scriptData = ViewData.Model as dynamic;
+    var fileUrl = scriptData?.FileUrl ?? "";
+    var fileExt = scriptData?.FileExt ?? "";
+    var documentId = scriptData?.DocumentId ?? 0;
+}
+
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- Document Viewer Modules (load in order) -->
+<script src="~/js/document-viewer/document-viewer-config.js"></script>
+<script src="~/js/document-viewer/document-viewer-utils.js"></script>
+<script src="~/js/document-viewer/document-viewer-ui.js"></script>
+<script src="~/js/document-viewer/document-viewer-navigation.js"></script>
+<script src="~/js/document-viewer/document-viewer-pdf.js"></script>
+<script src="~/js/document-viewer/document-viewer-text.js"></script>
+<script src="~/js/document-viewer/document-viewer-docx.js"></script>
+<script src="~/js/document-viewer/document-viewer-excel.js"></script>
+<script src="~/js/document-viewer/document-viewer-bookmarks.js"></script>
+<script src="~/js/document-viewer/document-viewer-search.js"></script>
+<script src="~/js/document-viewer/document-viewer-thumbnails.js"></script>
+<script src="~/js/document-viewer/document-viewer-highlight.js"></script>
+<script src="~/js/document-viewer/document-viewer-zoom.js"></script>
+<script src="~/js/document-viewer/document-viewer-edit.js"></script>
+<script src="~/js/document-viewer/document-viewer-main.js"></script>
+
+<!-- Initialize Viewer -->
+<script>
+    (async function() {
+        const fileUrl = '@Html.Raw(fileUrl)';
+        const fileExt = '@Html.Raw(fileExt)';
+        const documentId = @documentId;
+
+        // Wait for all modules to load
+        await new Promise(resolve => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', resolve);
+            } else {
+                resolve();
+            }
+        });
+
+        // Initialize the document viewer
+        try {
+            await window.DocViewerMain.init(fileUrl, fileExt, documentId);
+        } catch (error) {
+            console.error('Failed to initialize document viewer:', error);
+            window.DocViewerUI.showToast('❌ Không thể khởi tạo trình xem tài liệu', 'error');
+        }
+    })();
+</script>
