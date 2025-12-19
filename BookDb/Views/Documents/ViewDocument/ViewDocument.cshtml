@@ -7,31 +7,31 @@
 }
 
 <!-- Include styles -->
-@Html.Partial("_ViewDocumentStyles")
+@Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentStyles.cshtml")
 
 <div class="viewer-container">
     <!-- Sidebar -->
-    @Html.Partial("_ViewDocumentSidebar", Model)
+    @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentSidebar.cshtml", Model)
 
     <!-- Main Viewer -->
     <div class="viewer-main">
         <!-- Toolbar -->
-        @Html.Partial("_ViewDocumentToolbar")
+        @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentToolbar.cshtml")
 
         <!-- Content Area -->
-        @Html.Partial("_ViewDocumentContent")
+        @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentContent.cshtml")
 
         <!-- Search Panel -->
-        @Html.Partial("_ViewDocumentSearchPanel")
+        @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentSearchPanel.cshtml")
 
         <!-- Loading Overlay -->
-        @Html.Partial("_ViewDocumentLoadingOverlay")
+        @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentLoadingOverlay.cshtml")
     </div>
 </div>
 
 @section Scripts {
     <!-- Include JavaScript modules -->
-    @Html.Partial("_ViewDocumentScripts", new {
+    @Html.Partial("~/Views/Documents/ViewDocument/_ViewDocumentScripts.cshtml", new {
     FileUrl = filePath,
         FileExt = fileExt,
         DocumentId = Model.GetDocumentId(),

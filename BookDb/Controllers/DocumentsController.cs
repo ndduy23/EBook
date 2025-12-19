@@ -105,7 +105,8 @@ public class DocumentsController : Controller
 
         var viewModel = new ViewDocumentModel();
         viewModel.Initialize(document, mode, currentPageEntity, page, totalPages);
-        return View(viewModel);
+        // Use explicit file path to ensure the view is loaded from Views/Documents/ViewDocument
+        return View("~/Views/Documents/ViewDocument/ViewDocument.cshtml", viewModel);
     }
 
     // POST /documents/delete/{id}
@@ -147,7 +148,8 @@ public class DocumentsController : Controller
 
         var viewModel = new EditModel();
         viewModel.Initialize(doc);
-        return View(viewModel);
+        // Show the edit UI inside the ViewDocument folder view
+        return View("~/Views/Documents/ViewDocument/ViewDocument.cshtml", viewModel);
     }
 
     // POST /documents/edit/{id}
