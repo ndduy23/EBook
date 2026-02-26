@@ -17,11 +17,10 @@ namespace BookDb.Controllers.Admin
             _docService = docService;
         }
 
-        // GET admin/documents -> redirect to public documents index which already supports admin management
+        // GET admin/documents 
         [HttpGet("")]
         public IActionResult Index(string? q, int page = 1, int pageSize = 20)
         {
-            // Redirect to the main documents index to reuse search, filters and scripts
             return RedirectToAction("Index", "Documents", new { q, page, pageSize, onlyMine = false });
         }
 
@@ -29,7 +28,6 @@ namespace BookDb.Controllers.Admin
         [HttpGet("view/{id}")]
         public IActionResult ViewDocument(int id)
         {
-            // Reuse public view action
             return RedirectToAction("ViewDocument", "Documents", new { id });
         }
 
@@ -37,7 +35,6 @@ namespace BookDb.Controllers.Admin
         [HttpGet("edit/{id}")]
         public IActionResult Edit(int id)
         {
-            // Redirect to the Documents edit page which performs authorization checks
             return RedirectToAction("Edit", "Documents", new { id });
         }
 
@@ -52,7 +49,6 @@ namespace BookDb.Controllers.Admin
             var success = await _docService.DeleteDocumentAsync(id);
             if (!success) return BadRequest(new { success = false, message = "Không thể xóa tài liệu" });
 
-            // If AJAX request, return JSON
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return Ok(new { success = true, message = "Đã xóa" });
